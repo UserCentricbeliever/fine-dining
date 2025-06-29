@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tastify</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { primary: "#0a632b", secondary: "#e6e711" },
+            borderRadius: {
+              none: "0px",
+              sm: "4px",
+              DEFAULT: "8px",
+              md: "12px",
+              lg: "16px",
+              xl: "20px",
+              "2xl": "24px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "8px",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+      }
+      :where([class^="ri-"])::before {
+        content: "\f3c2";
+      }
+      .star-rating {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+      }
+      .star-rating input {
+        display: none;
+      }
+      .star-rating label {
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .star-rating label:hover,
+      .star-rating label:hover ~ label,
+      .star-rating input:checked ~ label {
+        color: #ffc107;
+      }
+      .file-upload-container {
+        position: relative;
+        overflow: hidden;
+      }
+      .file-upload-container input[type="file"] {
+        position: absolute;
+        top: 0;
+        right: 0;
+        min-width: 100%;
+        min-height: 100%;
+        font-size: 100px;
+        text-align: right;
+        filter: alpha(opacity=0);
+        opacity: 0;
+        outline: none;
+        cursor: pointer;
+        display: block;
+      }
+      .textarea-container {
+        position: relative;
+      }
+      .textarea-container .character-count {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        font-size: 12px;
+        color: #6b7280;
+      }
+      .custom-checkbox {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+      }
+      .custom-checkbox input {
+        display: none;
+      }
+      .custom-checkbox .checkbox-icon {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #d1d5db;
+        border-radius: 4px;
+        margin-right: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+      }
+      .custom-checkbox input:checked + .checkbox-icon {
+        background-color: #4f46e5;
+        border-color: #4f46e5;
+      }
+      .custom-checkbox input:checked + .checkbox-icon i {
+        display: block;
+      }
+      .custom-checkbox .checkbox-icon i {
+        color: white;
+        display: none;
+      }
+      .image-preview {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+      }
+      .image-preview-item {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .image-preview-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .image-preview-item .remove-image {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+      }
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 min-h-screen">
+    <header class="bg-white shadow-sm">
+      <div
+        class="container mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between"
+      >
+        <div class="flex items-center mb-4 md:mb-0">
+          <h1 class="text-2xl font-['Pacifico'] text-primary">Tastify</h1>
+        </div>
+      </div>
+    </header>
+    <main class="container mx-auto px-4 py-8 max-w-3xl">
+      <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div
+          class="px-6 py-8 bg-[url('Images/full-table.jpg')] bg-cover bg-center text-white"
+        >
+          <!-- <div class="px-6 py-4 bg-primary text-white">-->
+
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-xl font-semibold">Share Your Experience</h2>
+              <p class="text-white/80 text-sm mt-1">
+                Your feedback helps us improve our service
+              </p>
+            </div>
+            <div
+              class="w-10 h-10 flex items-center justify-center bg-white/20 rounded-full"
+            >
+              <i class="ri-feedback-line text-white ri-lg"></i>
+            </div>
+          </div>
+        </div>
+        <div class="p-6">
+          <!-- Tabs -->
+          <div class="flex border-b mb-6">
+            <button
+              id="tab-feedback"
+              class="tab-button px-4 py-2 border-b-2 border-primary text-primary font-medium whitespace-nowrap !rounded-button"
+            >
+              <i class="ri-star-line mr-1"></i> Rate & Review
+            </button>
+            <button
+              id="tab-history"
+              class="tab-button px-4 py-2 border-b-2 border-transparent text-gray-500 font-medium whitespace-nowrap !rounded-button"
+            >
+              <i class="ri-history-line mr-1"></i> Your Feedback
+            </button>
+          </div>
+          <!-- Feedback Form Tab -->
+          <div id="content-feedback" class="tab-content active">
+            <form id="feedback-form">
+              <!-- Overall Rating -->
+              <div class="mb-8">
+                <div class="flex items-center justify-between mb-2">
+                  <h3 class="text-lg font-medium text-gray-800">
+                    Overall Experience
+                  </h3>
+                  <span id="overall-rating-text" class="text-sm text-gray-500"
+                    >Select rating</span
+                  >
+                </div>
+                <div class="star-rating flex justify-center text-4xl">
+                  <input
+                    type="radio"
+                    id="star5"
+                    name="overall-rating"
+                    value="5"
+                  />
+                  <label
+                    for="star5"
+                    class="w-12 h-12 flex items-center justify-center"
+                    ><i class="ri-star-fill"></i
+                  ></label>
+                  <input
+                    type="radio"
+                    id="star4"
+                    name="overall-rating"
+                    value="4"
+                  />
+                  <label
+                    for="star4"
+                    class="w-12 h-12 flex items-center justify-center"
+                    ><i class="ri-star-fill"></i
+                  ></label>
+                  <input
+                    type="radio"
+                    id="star3"
+                    name="overall-rating"
+                    value="3"
+                  />
+                  <label
+                    for="star3"
+                    class="w-12 h-12 flex items-center justify-center"
+                    ><i class="ri-star-fill"></i
+                  ></label>
+                  <input
+                    type="radio"
+                    id="star2"
+                    name="overall-rating"
+                    value="2"
+                  />
+                  <label
+                    for="star2"
+                    class="w-12 h-12 flex items-center justify-center"
+                    ><i class="ri-star-fill"></i
+                  ></label>
+                  <input
+                    type="radio"
+                    id="star1"
+                    name="overall-rating"
+                    value="1"
+                  />
+                  <label
+                    for="star1"
+                    class="w-12 h-12 flex items-center justify-center"
+                    ><i class="ri-star-fill"></i
+                  ></label>
+                </div>
+              </div>
+              <div class="mb-8">
+                <h3 class="text-lg font-medium text-gray-800 mb-4">
+                  Rate Different Aspects
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <!-- Food Quality -->
+                  <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="flex items-center mb-2">
+                      <div
+                        class="w-8 h-8 flex items-center justify-center bg-primary/10 rounded-full text-primary mr-2"
+                      >
+                        <i class="ri-restaurant-line"></i>
+                      </div>
+
+                      <h4 class="font-medium text-gray-800">Food Quality</h4>
+                      <span
+                        id="food-rating-text"
+                        class="text-sm text-gray-500 ml-auto"
+                        >Select rating</span
+                      >
+                    </div>
+                    <div class="star-rating text-xl" data-category="food">
+                      <input
+                        type="radio"
+                        id="food5"
+                        name="food-rating"
+                        value="5"
+                      />
+                      <label
+                        for="food5"
+                        class="w-8 h-8 flex items-center justify-center"
+                        ><i class="ri-star-fill"></i
+                      ></label>
+                      <input
+                        type="radio"
+                        id="food4"
+                        name="food-rating"
+                        value="4"
+                      />
+                      <label
+                        for="food4"
+                        class="w-8 h-8 flex items-center justify-center"
+                        ><i class="ri-star-fill"></i
+                      ></label>
+                      <input
+                        type="radio"
+                        id="food3"
+                        name="food-rating"
+                        value="3"
+                      />
+                      <label
+                        for="food3"
+                        class="w-8 h-8 flex items-center justify-center"
+                        ><i class="ri-star-fill"></i
+                      ></label>
+                      <input
+                        type="radio"
+                        id="food2"
+                        name="food-rating"
+                        value="2"
+                      />
+                      <label
+                        for="food2"
+                        class="w-8 h-8 flex items-center justify-center"
+                        ><i class="ri-star-fill"></i
+                      ></label>
+                      <input
+                        type="radio"
+                        id="food1"
+                        name="food-rating"
+                        value="1"
+                      />
+                      <label
+                        for="food1"
+                        class="w-8 h-8 flex items-center justify-center"
+                        ><i class="ri-star-fill"></i
+                      ></label>
+                    </div>
+                  </div>
+                  <!-- Temperature -->
+                  <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="flex items-center mb-2">
+                      <div
+                        class="w-8 h-8 flex items-center justify-center bg-primary/10 rounded-full text-primary mr-2"
+                      >
+                        <i class="ri-temp-cold-line"></i>
+                      </div>
+                      <h4 class="font-medium text-gray-800">Temperature</h4>
+                      <span
+                        id="temperature-rating-text"
+                        class="text-sm text-gray-500 ml-auto"
+                        >Select rating</span
+                      >
+                    </div>
+                    <div
+                      class="star-rating text-xl"
+                      data-category="temperature"
+                    >
+                      <input
+                        type="radio"
+                        id="temperature5"
+                        name="temperature-rating"
+                        value="5"
+                      />
+                      <label
+                        for="temperature5"
+                        class="w-8 h-8 flex items-center justify-center"
+                        ><i class="ri-star-fill"></i
+                      ></label>
+                      <input
+                        type="radio"
+                        id="temperature4"
+                        name="temperature-rating"
+                        value="4"
+                      />
+                      <label
+                        for="temperature4"
+                        class="w-8 h-8 flex items-center justify-center"
+                        ><i class="ri-star-fill"></i
+                      ></label>
+                      <input
+                        type="radio"
+                        id="temperature3"
+                        name="temperature-rating"
+                        value="3"
+                      />
+                      <label
+                        for="temperature3"
+                        class="w-8 h-8 flex items-center justify-center"
+                        ><i class="ri-star-fill"></i
+                      ></label>
+                      <input
+                        type="radio"
+                        id="temperature2"
+                        name="temperature-rating"
+                        value="2"
+                      />
+                      <label
+                        for="temperature2"
+                        class="w-8 h-8 flex items-center justify-center"
+                        ><i class="ri-star-fill"></i
+                      ></label>
+                      <input
+                        type="radio"
+                        id="temperature1"
+                        name="temperature-rating"
+                        value="1"
+                      />
+                      <label
+                        for="temperature1"
+                        class="w-8 h-8 flex items-center justify-center"
+                        ><i class="ri-star-fill"></i
+                      ></label>
+                    </div>
+                  </div>
+                  <!-- Salt Level -->
+                  <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="flex items-center mb-2">
+                      <div
+                        class="w-8 h-8 flex items-center justify-center bg-primary/10 rounded-full text-primary mr-2"
+                      >
+                        <i class="ri-restaurant-2-line"></i>
+                      </div>
+                      <h4 class="font-medium text-gray-800">Salt Level</h4>
+                      <span
+                        id="salt-rating-text"
+                        class="text-sm text-gray-500 ml-auto"
+                        >Select rating</span
+                      >
+                    </div>
+                    <div class="star-rating text-xl" data-category="salt">
+                      <input
+                        type="radio"
+                        id="salt5"
+                        name="salt-rating"
+                        value="5"
+                      />
+                      <label
+                        for="salt5"
+                        class="w-8 h-8 flex items-center justify-center"
+                        ><i class="ri-star-fill"></i
+                      ></label>
+                      <input
+                        type="radio"
+                        id="salt4"
+                        name="salt-rating"
+                        value="4"
+                      />
+                      <label
+                        for="salt4"
+                        class="w-8 h-8 flex items-center justify-center"
+                        ><i class="ri-star-fill"></i
+                      ></label>
+                      <input
+                        type="radio"
+                        id="salt3"
+                        name="salt-rating"
+                        value="3"
+                      />
+                      <label
+                        for="salt3"
+                        class="w-8 h-8 flex items-center justify-center"
+                        ><i class="ri-star-fill"></i
+                      ></label>
+                      <input
+                        type="radio"
+                        id="salt2"
+                        name="salt-rating"
+                        value="2"
+                      />
+                      <label
+                        for="salt2"
+                        class="w-8 h-8 flex items-center justify-center"
+                        ><i class="ri-star-fill"></i
+                      ></label>
+                      <input
+                        type="radio"
+                        id="salt1"
+                        name="salt-rating"
+                        value="1"
+                      />
+                      <label
+                        for="salt1"
+                        class="w-8 h-8 flex items-center justify-center"
+                        ><i class="ri-star-fill"></i
+                      ></label>
+                    </div>
+                  </div>
+                  <!-- Spices -->
+                  <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="flex items-center mb-2">
+                      <div
+                        class="w-8 h-8 flex items-center justify-center bg-primary/10 rounded-full text-primary mr-2"
+                      >
+                        <i class="ri-fire-line"></i>
+                      </div>
+                      <h4 class="font-medium text-gray-800">Spices</h4>
+                      <span
+                        id="spices-rating-text"
+                        class="text-sm text-gray-500 ml-auto"
+                        >Select rating</span
+                      >
+                    </div>
+                    <div class="star-rating text-xl" data-category="spices">
+                      <input
+                        type="radio"
+                        id="spices5"
+                        name="spices-rating"
+                        value="5"
+                      />
+                      <label
+                        for="spices5"
+                        class="w-8 h-8 flex items-center justify-center"
+                        ><i class="ri-star-fill"></i
+                      ></label>
+                      <input
+                        type="radio"
+                        id="spices4"
+                        name="spices-rating"
+                        value="4"
+                      />
+                      <label
+                        for="spices4"
+                        class="w-8 h-8 flex items-center justify-center"
+                        ><i class="ri-star-fill"></i
+                      ></label>
+                      <input
+                        type="radio"
+                        id="spices3"
+                        name="spices-rating"
+                        value="3"
+                      />
+                      <label
+                        for="spices3"
+                        class="w-8 h-8 flex items-center justify-center"
+                        ><i class="ri-star-fill"></i
+                      ></label>
+                      <input
+                        type="radio"
+                        id="spices2"
+                        name="spices-rating"
+                        value="2"
+                      />
+                      <label
+                        for="spices2"
+                        class="w-8 h-8 flex items-center justify-center"
+                        ><i class="ri-star-fill"></i
+                      ></label>
+                      <input
+                        type="radio"
+                        id="spices1"
+                        name="spices-rating"
+                        value="1"
+                      />
+                      <label
+                        for="spices1"
+                        class="w-8 h-8 flex items-center justify-center"
+                        ><i class="ri-star-fill"></i
+                      ></label>
+                    </div>
+                  </div>
+                  <!-- Taste -->
+                  <div class="bg-gray-50 p-4 rounded-lg md:col-span-2">
+                    <div class="flex items-center mb-2">
+                      <div
+                        class="w-8 h-8 flex items-center justify-center bg-primary/10 rounded-full text-primary mr-2"
+                      >
+                        <i class="ri-emotion-line"></i>
+                      </div>
+                      <h4 class="font-medium text-gray-800">Taste</h4>
+                      <span
+                        id="taste-rating-text"
+                        class="text-sm text-gray-500 ml-auto"
+                        >Select rating</span
+                      >
+                    </div>
+                    <div class="star-rating text-xl" data-category="taste">
+                      <input
+                        type="radio"
+                        id="taste5"
+                        name="taste-rating"
+                        value="5"
+                      />
+                      <label
+                        for="taste5"
+                        class="w-8 h-8 flex items-center justify-center"
+                        ><i class="ri-star-fill"></i
+                      ></label>
+                      <input
+                        type="radio"
+                        id="taste4"
+                        name="taste-rating"
+                        value="4"
+                      />
+                      <label
+                        for="taste4"
+                        class="w-8 h-8 flex items-center justify-center"
+                        ><i class="ri-star-fill"></i
+                      ></label>
+                      <input
+                        type="radio"
+                        id="taste3"
+                        name="taste-rating"
+                        value="3"
+                      />
+                      <label
+                        for="taste3"
+                        class="w-8 h-8 flex items-center justify-center"
+                        ><i class="ri-star-fill"></i
+                      ></label>
+                      <input
+                        type="radio"
+                        id="taste2"
+                        name="taste-rating"
+                        value="2"
+                      />
+                      <label
+                        for="taste2"
+                        class="w-8 h-8 flex items-center justify-center"
+                        ><i class="ri-star-fill"></i
+                      ></label>
+                      <input
+                        type="radio"
+                        id="taste1"
+                        name="taste-rating"
+                        value="1"
+                      />
+                      <label
+                        for="taste1"
+                        class="w-8 h-8 flex items-center justify-center"
+                        ><i class="ri-star-fill"></i
+                      ></label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Written Feedback -->
+              <div class="mb-8">
+                <h3 class="text-lg font-medium text-gray-800 mb-2">
+                  Tell us what you loved
+                </h3>
+                <div class="textarea-container">
+                  <textarea
+                    id="feedback-text"
+                    class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all min-h-[120px]"
+                    placeholder="Tell us what you loved ..."
+                  ></textarea>
+                  <div class="character-count">0/1000</div>
+                </div>
+              </div>
+              <div class="mb-8">
+                <h3 class="text-lg font-medium text-gray-800 mb-2">
+                  What should we improve?
+                </h3>
+                <div class="textarea-container">
+                  <textarea
+                    id="feedback-text"
+                    class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all min-h-[120px]"
+                    placeholder="Tell us what you loved ..."
+                  ></textarea>
+                  <div class="character-count">0/1000</div>
+                </div>
+              </div>
+
+              <!-- Customer Information -->
+              <!--<div class="mb-8">
+                <h3 class="text-lg font-medium text-gray-800 mb-4">
+                  Your Information (Optional)
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label
+                      for="customer-name"
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                      >Name</label
+                    >
+                    <input
+                      type="text"
+                      id="customer-name"
+                      class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                      placeholder="Your name"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      for="visit-date"
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                      >Visit Date</label
+                    >
+                    <input
+                      type="date"
+                      id="visit-date"
+                      class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                    />
+                  </div>
+                </div>
+              </div> -->
+              <!-- Contact Permission -->
+              <!--<div class="mb-8">
+                <label class="custom-checkbox">
+                  <input type="checkbox" id="contact-permission" />
+                  <span class="checkbox-icon">
+                    <i class="ri-check-line ri-sm"></i>
+                  </span>
+                  <span class="text-gray-700"
+                    >I agree to be contacted about my feedback if
+                    necessary</span
+                  >
+                </label>
+              </div> -->
+              <!-- Submit Button -->
+              <div class="flex justify-center">
+                <button
+                  type="submit"
+                  class="bg-primary hover:bg-primary/90 text-white py-3 px-8 rounded-button !rounded-button font-medium transition-colors flex items-center whitespace-nowrap"
+                >
+                  <i class="ri-send-plane-fill mr-2"></i> Submit Feedback
+                </button>
+              </div>
+            </form>
+          </div>
+          <!-- History Tab -->
+          <div id="content-history" class="tab-content">
+            <div id="no-history" class="text-center py-8 hidden">
+              <div
+                class="w-16 h-16 mx-auto flex items-center justify-center bg-gray-100 rounded-full mb-4"
+              >
+                <i class="ri-history-line text-gray-400 ri-2x"></i>
+              </div>
+              <h3 class="text-lg font-medium text-gray-800 mb-2">
+                No Feedback History
+              </h3>
+              <p class="text-gray-500 mb-4">
+                You haven't submitted any feedback yet
+              </p>
+              <button
+                id="go-to-feedback"
+                class="bg-primary hover:bg-primary/90 text-white py-2 px-4 rounded-button !rounded-button font-medium transition-colors whitespace-nowrap"
+              >
+                Submit Your First Feedback
+              </button>
+            </div>
+            <div id="feedback-history" class="space-y-6">
+              <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-medium text-gray-800">
+                  Your Previous Feedback
+                </h3>
+                <span class="text-sm text-gray-500">Most recent first</span>
+              </div>
+              <div id="history-list" class="space-y-6"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- Success Modal -->
+    <div
+      id="success-modal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden"
+    >
+      <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-xl">
+        <div class="text-center">
+          <div
+            class="w-16 h-16 mx-auto flex items-center justify-center bg-green-100 rounded-full mb-4 text-green-500"
+          >
+            <i class="ri-check-line ri-2x"></i>
+          </div>
+          <h3 class="text-xl font-medium text-gray-900 mb-2">Thank You!</h3>
+          <p class="text-gray-600 mb-6">
+            Your feedback has been submitted successfully. We appreciate your
+            time and input!
+          </p>
+          <div class="flex flex-col sm:flex-row gap-3 justify-center">
+            <button
+              id="close-modal"
+              class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-button !rounded-button font-medium transition-colors whitespace-nowrap"
+            >
+              Close
+            </button>
+            <button
+              id="new-feedback"
+              class="bg-primary hover:bg-primary/90 text-white py-2 px-4 rounded-button !rounded-button font-medium transition-colors whitespace-nowrap"
+            >
+              Submit Another Feedback
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script id="tab-switcher">
+      document.addEventListener("DOMContentLoaded", function () {
+        const tabButtons = document.querySelectorAll(".tab-button");
+        const tabContents = document.querySelectorAll(".tab-content");
+        tabButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            const tabId = button.id.replace("tab-", "content-");
+            tabButtons.forEach((btn) => {
+              btn.classList.remove("border-primary", "text-primary");
+              btn.classList.add("border-transparent", "text-gray-500");
+            });
+            tabContents.forEach((content) => {
+              content.classList.remove("active");
+            });
+            button.classList.add("border-primary", "text-primary");
+            button.classList.remove("border-transparent", "text-gray-500");
+            document.getElementById(tabId).classList.add("active");
+          });
+        });
+        document
+          .getElementById("go-to-feedback")
+          .addEventListener("click", () => {
+            document.getElementById("tab-feedback").click();
+          });
+      });
+    </script>
+    <script id="star-rating-handler">
+      document.addEventListener("DOMContentLoaded", function () {
+        const overallRatingInputs = document.querySelectorAll(
+          'input[name="overall-rating"]'
+        );
+        const overallRatingText = document.getElementById(
+          "overall-rating-text"
+        );
+        const ratingTexts = {
+          1: "Poor",
+          2: "Fair",
+          3: "Good",
+          4: "Very Good",
+          5: "Excellent",
+        };
+        const ratingColors = {
+          1: "text-red-500",
+          2: "text-yellow-500",
+          3: "text-blue-500",
+          4: "text-indigo-500",
+          5: "text-green-500",
+        };
+        overallRatingInputs.forEach((input) => {
+          input.addEventListener("change", function () {
+            const value = this.value;
+            overallRatingText.textContent = ratingTexts[value];
+            // Remove all previous color classes
+            overallRatingText.className = "text-sm font-medium"; // base style
+            overallRatingText.classList.add(ratingColors[value]); // add dynamic color
+          });
+        });
+      });
+    </script>
+
+    <script id="food-rating-handler">
+      document.addEventListener("DOMContentLoaded", function () {
+        const foodRatingInputs = document.querySelectorAll(
+          'input[name="food-rating"]'
+        );
+        const foodRatingText = document.getElementById("food-rating-text");
+        const ratingTexts = {
+          1: "Poor",
+          2: "Fair",
+          3: "Good",
+          4: "Very Good",
+          5: "Excellent",
+        };
+        const ratingColors = {
+          1: "text-red-500",
+          2: "text-yellow-500",
+          3: "text-blue-500",
+          4: "text-indigo-500",
+          5: "text-green-500",
+        };
+        foodRatingInputs.forEach((input) => {
+          input.addEventListener("change", function () {
+            const value = this.value;
+            foodRatingText.textContent = ratingTexts[value];
+            // Remove all previous color classes
+            foodRatingText.className = "text-sm font-medium ml-auto"; // base style
+            foodRatingText.classList.add(ratingColors[value]); // add dynamic color
+          });
+        });
+      });
+    </script>
+    <script id="salt-rating-handler">
+      document.addEventListener("DOMContentLoaded", function () {
+        const saltRatingInputs = document.querySelectorAll(
+          'input[name="salt-rating"]'
+        );
+        const saltRatingText = document.getElementById("salt-rating-text");
+        const ratingTexts = {
+          1: "Too Much",
+          2: "Much",
+          3: "Moderate",
+          4: "Fine",
+          5: "Just Right",
+        };
+        const ratingColors = {
+          1: "text-red-500",
+          2: "text-yellow-500",
+          3: "text-blue-500",
+          4: "text-indigo-500",
+          5: "text-green-500",
+        };
+        saltRatingInputs.forEach((input) => {
+          input.addEventListener("change", function () {
+            const value = this.value;
+            saltRatingText.textContent = ratingTexts[value];
+            // Remove all previous color classes
+            saltRatingText.className = "text-sm font-medium ml-auto"; // base style
+            saltRatingText.classList.add(ratingColors[value]); // add dynamic color
+          });
+        });
+      });
+    </script>
+    <script id="temperature-rating-handler">
+      document.addEventListener("DOMContentLoaded", function () {
+        const temperatureRatingInputs = document.querySelectorAll(
+          'input[name="temperature-rating"]'
+        );
+        const temperatureRatingText = document.getElementById(
+          "temperature-rating-text"
+        );
+        const ratingTexts = {
+          1: "Very Cold",
+          2: "Cold",
+          3: "Moderate",
+          4: "Hot",
+          5: "Very Hot",
+        };
+        const ratingColors = {
+          1: "text-red-500",
+          2: "text-yellow-500",
+          3: "text-blue-500",
+          4: "text-indigo-500",
+          5: "text-green-500",
+        };
+        temperatureRatingInputs.forEach((input) => {
+          input.addEventListener("change", function () {
+            const value = this.value;
+            temperatureRatingText.textContent = ratingTexts[value];
+            // Remove all previous color classes
+            temperatureRatingText.className = "text-sm font-medium ml-auto"; // base style
+            temperatureRatingText.classList.add(ratingColors[value]); // add dynamic color
+          });
+        });
+      });
+    </script>
+    <script id="spices-rating-handler">
+      document.addEventListener("DOMContentLoaded", function () {
+        const spicesRatingInputs = document.querySelectorAll(
+          'input[name="spices-rating"]'
+        );
+        const spicesRatingText = document.getElementById("spices-rating-text");
+        const ratingTexts = {
+          1: "Extremly Spicy",
+          2: "Too Spicy",
+          3: "Moderate",
+          4: "Fine",
+          5: "Just Right",
+        };
+        const ratingColors = {
+          1: "text-red-500",
+          2: "text-yellow-500",
+          3: "text-blue-500",
+          4: "text-indigo-500",
+          5: "text-green-500",
+        };
+        spicesRatingInputs.forEach((input) => {
+          input.addEventListener("change", function () {
+            const value = this.value;
+            spicesRatingText.textContent = ratingTexts[value];
+            // Remove all previous color classes
+            spicesRatingText.className = "text-sm font-medium ml-auto"; // base style
+            spicesRatingText.classList.add(ratingColors[value]); // add dynamic color
+          });
+        });
+      });
+    </script>
+    <script id="taste-rating-handler">
+      document.addEventListener("DOMContentLoaded", function () {
+        const tasteRatingInputs = document.querySelectorAll(
+          'input[name="taste-rating"]'
+        );
+        const tasteRatingText = document.getElementById("taste-rating-text");
+        const ratingTexts = {
+          1: "Poor",
+          2: "Fair",
+          3: "Good",
+          4: "Very Good",
+          5: "Exellent",
+        };
+        const ratingColors = {
+          1: "text-red-500",
+          2: "text-yellow-500",
+          3: "text-blue-500",
+          4: "text-indigo-500",
+          5: "text-green-500",
+        };
+        tasteRatingInputs.forEach((input) => {
+          input.addEventListener("change", function () {
+            const value = this.value;
+            tasteRatingText.textContent = ratingTexts[value];
+            // Remove all previous color classes
+            tasteRatingText.className = "text-sm font-medium ml-auto"; // base style
+            tasteRatingText.classList.add(ratingColors[value]); // add dynamic color
+          });
+        });
+      });
+    </script>
+
+    <script id="textarea-character-counter">
+      document.addEventListener("DOMContentLoaded", function () {
+        const textareas = [
+          document.getElementById("feedback-text"),
+          document.getElementById("menu-thoughts"),
+        ];
+        const characterCounts = document.querySelectorAll(".character-count");
+        const maxLength = 500;
+        textareas.forEach((textarea, index) => {
+          textarea.addEventListener("input", function () {
+            const currentLength = this.value.length;
+            characterCounts[
+              index
+            ].textContent = `${currentLength}/${maxLength}`;
+            if (currentLength > maxLength) {
+              characterCounts[index].classList.add("text-red-500");
+              this.value = this.value.substring(0, maxLength);
+              characterCounts[index].textContent = `${maxLength}/${maxLength}`;
+            } else {
+              characterCounts[index].classList.remove("text-red-500");
+            }
+          });
+        });
+      });
+    </script>
+    <!-- <script id="image-upload-handler">
+      document.addEventListener("DOMContentLoaded", function () {
+        const photoUpload = document.getElementById("photo-upload");
+        const imagePreview = document.getElementById("image-preview");
+        let uploadedFiles = [];
+        photoUpload.addEventListener("change", function (e) {
+          const files = Array.from(e.target.files);
+          if (uploadedFiles.length + files.length > 5) {
+            alert("You can only upload a maximum of 5 photos.");
+            return;
+          }
+          files.forEach((file) => {
+            if (file.size > 5 * 1024 * 1024) {
+              alert(`File ${file.name} is too large. Maximum size is 5MB.`);
+              return;
+            }
+            if (!file.type.startsWith("image/")) {
+              alert(`File ${file.name} is not an image.`);
+              return;
+            }
+            uploadedFiles.push(file);
+            const reader = new FileReader();
+            reader.onload = function (e) {
+              const previewItem = document.createElement("div");
+              previewItem.className = "image-preview-item";
+              previewItem.innerHTML = `
+<img src="${e.target.result}" alt="Preview">
+<div class="remove-image" data-index="${uploadedFiles.length - 1}">
+<i class="ri-close-line"></i>
+</div>
+`;
+              imagePreview.appendChild(previewItem);
+            };
+            reader.readAsDataURL(file);
+          });
+        });
+        imagePreview.addEventListener("click", function (e) {
+          if (e.target.closest(".remove-image")) {
+            const index = e.target.closest(".remove-image").dataset.index;
+            uploadedFiles.splice(index, 1);
+            e.target.closest(".image-preview-item").remove();
+            // Update indices
+            const removeButtons = document.querySelectorAll(".remove-image");
+            removeButtons.forEach((button, i) => {
+              button.dataset.index = i;
+            });
+          }
+        });
+      });
+    </script> -->
+    <!-- <script id="meal-type-handler">
+      document.addEventListener("DOMContentLoaded", function () {
+        const mealTypeBtn = document.getElementById("meal-type-btn");
+        const mealTypeDropdown = document.getElementById("meal-type-dropdown");
+        let isDropdownOpen = false;
+        mealTypeBtn.addEventListener("click", function () {
+          isDropdownOpen = !isDropdownOpen;
+          if (isDropdownOpen) {
+            mealTypeDropdown.classList.remove("hidden");
+          } else {
+            mealTypeDropdown.classList.add("hidden");
+          }
+        });
+        document.addEventListener("click", function (e) {
+          if (
+            !mealTypeBtn.contains(e.target) &&
+            !mealTypeDropdown.contains(e.target)
+          ) {
+            mealTypeDropdown.classList.add("hidden");
+            isDropdownOpen = false;
+          }
+        });
+        const dropdownButtons = mealTypeDropdown.querySelectorAll("button");
+        dropdownButtons.forEach((button) => {
+          button.addEventListener("click", function () {
+            mealTypeBtn.textContent = this.textContent;
+            mealTypeDropdown.classList.add("hidden");
+            isDropdownOpen = false;
+          });
+        });
+      });
+    </script> -->
+    <script id="form-submission-handler">
+      document.addEventListener("DOMContentLoaded", function () {
+        const feedbackForm = document.getElementById("feedback-form");
+        const successModal = document.getElementById("success-modal");
+        const closeModal = document.getElementById("close-modal");
+        const newFeedback = document.getElementById("new-feedback");
+        //const mealTypeBtn = document.getElementById("meal-type-btn");
+        const noHistory = document.getElementById("no-history");
+        const feedbackHistory = document.getElementById("feedback-history");
+        const historyList = document.getElementById("history-list");
+        let feedbackData = [];
+        function createStarRating(rating) {
+          let stars = "";
+          for (let i = 0; i < 5; i++) {
+            stars += `<i class="ri-star-fill ${
+              i < rating ? "text-yellow-400" : "text-gray-300"
+            }"></i>`;
+          }
+          return stars;
+        }
+        function formatDate(date) {
+          return new Date(date).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          });
+        }
+        function updateHistoryView() {
+          if (feedbackData.length === 0) {
+            noHistory.classList.remove("hidden");
+            feedbackHistory.classList.add("hidden");
+          } else {
+            noHistory.classList.add("hidden");
+            feedbackHistory.classList.remove("hidden");
+            historyList.innerHTML = feedbackData
+              .map(
+                (feedback) => `
+<div class="bg-white rounded-lg shadow p-6 space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center space-x-2">
+<span class="text-sm font-medium text-gray-800">${feedback.visitDate}</span>
+<span class="text-sm text-gray-500">•</span>
+<span class="text-sm text-gray-500">Table ${
+                  feedback.tableNumber || "N/A"
+                }</span>
+</div>
+<div class="flex items-center space-x-1 text-lg">
+${createStarRating(feedback.overallRating)}
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex items-center space-x-2">
+<span class="text-sm font-medium text-gray-700">Meal Type:</span>
+<span class="text-sm text-gray-600">${feedback.mealType}</span>
+</div>
+<div class="flex items-center space-x-2">
+<span class="text-sm font-medium text-gray-700">Server:</span>
+<span class="text-sm text-gray-600">${
+                  feedback.serverName || "Not specified"
+                }</span>
+</div>
+</div>
+<p class="text-gray-600 text-sm">${feedback.comments}</p>
+<div class="pt-4 border-t">
+<div class="grid grid-cols-2 gap-4">
+<div>
+<h4 class="text-sm font-medium text-gray-700 mb-2">Food & Service</h4>
+<div class="space-y-1">
+<div class="flex items-center justify-between">
+<span class="text-xs text-gray-500">Food Quality</span>
+<div class="flex items-center space-x-1 text-sm">
+${createStarRating(feedback.foodRating)}
+</div>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-xs text-gray-500">Temperature</span>
+<div class="flex items-center space-x-1 text-sm">
+${createStarRating(feedback.temperatureRating)}
+</div>
+</div>
+</div>
+</div>
+<div>
+<h4 class="text-sm font-medium text-gray-700 mb-2">Salt & spices</h4>
+<div class="space-y-1">
+<div class="flex items-center justify-between">
+<span class="text-xs text-gray-500">Salt</span>
+<div class="flex items-center space-x-1 text-sm">
+${createStarRating(feedback.saltRating)}
+</div>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-xs text-gray-500">Spices</span>
+<div class="flex items-center space-x-1 text-sm">
+${createStarRating(feedback.spicesRating)}
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+`
+              )
+              .join("");
+          }
+        }
+        feedbackForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+          const overallRating = document.querySelector(
+            'input[name="overall-rating"]:checked'
+          );
+          if (!overallRating) {
+            alert("Please provide an overall rating.");
+            return;
+          }
+          const newFeedback = {
+            visitDate:
+              document.getElementById("visit-date").value ||
+              formatDate(new Date()),
+            tableNumber: document.getElementById("table-number").value,
+            overallRating: parseInt(overallRating.value),
+            mealType: mealTypeBtn.textContent.trim(),
+            serverName: document.getElementById("server-name").value,
+            comments: document.getElementById("feedback-text").value,
+            foodRating: parseInt(
+              document.querySelector('input[name="food-rating"]:checked')
+                ?.value || 0
+            ),
+            temperatureRating: parseInt(
+              document.querySelector('input[name="temperature-rating"]:checked')
+                ?.value || 0
+            ),
+            saltRating: parseInt(
+              document.querySelector('input[name="salt-rating"]:checked')
+                ?.value || 0
+            ),
+            spicesRating: parseInt(
+              document.querySelector('input[name="spices-rating"]:checked')
+                ?.value || 0
+            ),
+          };
+          feedbackData.unshift(newFeedback);
+          updateHistoryView();
+          successModal.classList.remove("hidden");
+        });
+        closeModal.addEventListener("click", function () {
+          successModal.classList.add("hidden");
+        });
+        newFeedback.addEventListener("click", function () {
+          successModal.classList.add("hidden");
+          feedbackForm.reset();
+          document.getElementById("image-preview").innerHTML = "";
+          document.getElementById("overall-rating-text").textContent =
+            "Select rating";
+          document.querySelector(".character-count").textContent = "0/500";
+          mealTypeBtn.textContent = "Select dish type";
+        });
+        updateHistoryView();
+      });
+    </script>
+  </body>
+</html>
